@@ -1,0 +1,662 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech & AI Quest - Widescreen Edition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #1a0b2e 0%, #0d061c 50%, #1e103c 100%);
+            min-height: 100vh;
+            /* Animated background subtle effect */
+            background-size: 200% 200%;
+            animation: gradientBG 15s ease infinite;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .neon-border {
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.3), inset 0 0 20px rgba(236, 72, 153, 0.1);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-gradient:hover {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 15px 25px -5px rgba(236, 72, 153, 0.5);
+        }
+        .btn-gradient:active {
+            transform: translateY(1px);
+        }
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-card:hover:not(:disabled) {
+            transform: scale(1.03) translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(139, 92, 246, 0.4);
+        }
+        @keyframes bounce-short {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-bounce-short {
+            animation: bounce-short 1.5s ease-in-out infinite;
+        }
+        
+        /* Custom Scrollbar for review section */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+
+<body class="flex items-center justify-center p-4 sm:p-8 min-h-screen text-slate-800">
+    <!-- Main Widescreen Frame Container -->
+    <!-- Changed max-w-md to max-w-3xl (768px wide) for a much more spacious feel -->
+    <div class="w-full max-w-3xl my-auto">
+        
+        <!-- Header Brand -->
+        <div class="text-center mb-6 md:mb-8">
+            <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-5 py-2 rounded-full backdrop-blur-md mb-4 shadow-lg">
+                <i data-lucide="sparkles" class="w-5 h-5 md:w-6 md:h-6 text-amber-300"></i>
+                <span class="text-xs md:text-sm font-black uppercase tracking-widest text-purple-100">Tech & AI Quest App</span>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-black text-white tracking-tight leading-tight">
+                Uji Wawasan <br class="md:hidden" />
+                <span class="gradient-text drop-shadow-sm">Teknologi Masa Depan</span>
+            </h1>
+        </div>
+
+        <!-- APP CONTAINER (Lebih Luas & Responsif) -->
+        <div id="app" class="glass-card rounded-[2rem] p-6 sm:p-8 md:p-12 neon-border relative overflow-hidden transition-all duration-500 min-h-[450px] flex flex-col justify-center">
+            <!-- Dynamic Content injected by JS -->
+        </div>
+
+        <!-- Footer Info -->
+        <div class="text-center mt-8 text-purple-300/50 text-xs md:text-sm font-bold tracking-wider">
+            🚀 Coded with AI • Fully Responsive UI • 15 Nomor
+        </div>
+    </div>
+
+    <script>
+        const AudioFX = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+            playCorrect() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1);
+                osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.2);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            },
+            playWrong() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(250, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            },
+            playClick() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(500, now);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            }
+        };
+
+        const quizData = [
+            {
+                question: "Apa kepanjangan dari singkatan 'AI' dalam dunia teknologi?",
+                options: ["Artificial Intelligence", "Automated Information", "Advanced Integration", "Algorithm Interface"],
+                answer: 0,
+                explanation: "AI singkatan dari Artificial Intelligence (Kecerdasan Buatan), bidang ilmu komputer yang fokus membuat sistem cerdas yang mampu meniru cara berpikir manusia."
+            },
+            {
+                question: "Model AI seperti ChatGPT atau Gemini yang dilatih dengan miliaran teks termasuk dalam kategori...",
+                options: ["Large Language Model (LLM)", "Linear Logic Machine", "Low Latency Matrix", "Language Processing System"],
+                answer: 0,
+                explanation: "LLM (Large Language Model) adalah model deep learning masif yang memproses dan menghasilkan teks bahasa manusia dengan akurasi tinggi."
+            },
+            {
+                question: "Pengujian terkenal untuk menguji apakah suatu kecerdasan AI tidak terbedakan dari manusia dinamakan...",
+                options: ["Turing Test", "Voight-Kampff Test", "Captcha Protocol", "Binary Intelligence Test"],
+                answer: 0,
+                explanation: "Turing Test digagas oleh Alan Turing pada 1950 untuk mengevaluasi apakah perilaku kecerdasan mesin dapat menyamai manusia."
+            },
+            {
+                question: "Cabang AI yang berfokus agar komputer mampu memahami dan mengolah bahasa alami manusia disebut...",
+                options: ["Natural Language Processing (NLP)", "Computer Vision (CV)", "Neural Data Mining", "Speech Analytics"],
+                answer: 0,
+                explanation: "NLP (Natural Language Processing) memungkinkan mesin menganalisis, memahami, dan memproduksi bahasa manusia."
+            },
+            {
+                question: "Fenomena ketika AI generatif memberikan jawaban yang salah namun disajikan dengan sangat meyakinkan disebut...",
+                options: ["Hallucination (Halusinasi)", "System Glitch", "Data Leakage", "Overfitting"],
+                answer: 0,
+                explanation: "Halusinasi AI adalah respons percaya diri dari AI yang tidak didukung oleh data pelatihan yang nyata atau faktual."
+            },
+            {
+                question: "Teknik Machine Learning yang arsitekturnya terinspirasi oleh susunan neuron otak manusia adalah...",
+                options: ["Artificial Neural Network (ANN)", "Decision Tree", "Support Vector Machine", "Genetic Algorithm"],
+                answer: 0,
+                explanation: "ANN (Jaringan Saraf Tiruan) meniru struktur dan cara kerja neuron otak manusia dalam mengenali pola kompleks."
+            },
+            {
+                question: "Kecerdasan Buatan hipotetis yang memiliki kemampuan intelektual setara atau melebihi manusia di segala bidang disebut...",
+                options: ["AGI (Artificial General Intelligence)", "ANI (Artificial Narrow Intelligence)", "ASI (Automated Super Interface)", "API (Artificial Programmable Intelligence)"],
+                answer: 0,
+                explanation: "AGI merujuk pada AI umum yang dapat mempelajari dan menyelesaikan tugas intelektual apa pun seperti halnya manusia."
+            },
+            {
+                question: "Seni merancang instruksi atau perintah yang efektif agar AI generatif memberikan respons presisi dinamakan...",
+                options: ["Prompt Engineering", "Code Refactoring", "Data Scraping", "Algorithm Tuning"],
+                answer: 0,
+                explanation: "Prompt Engineering adalah teknik merancang kalimat masukan (prompt) agar model AI menghasilkan output yang optimal."
+            },
+            {
+                question: "Teknologi AI yang memungkinkan komputer mengenali dan menganalisis objek visual dari foto/video adalah...",
+                options: ["Computer Vision", "Optical Intelligence", "Visual Big Data", "Graphic Learning"],
+                answer: 0,
+                explanation: "Computer Vision memungkinkan sistem komputer mengekstrak informasi berharga dari gambar atau video digital."
+            },
+            {
+                question: "Unit data terkecil dalam komputasi kuantum yang memanfaatkan prinsip superposisi dinamakan...",
+                options: ["Qubit", "Byte", "Pixel", "KiloBit"],
+                answer: 0,
+                explanation: "Qubit (Quantum Bit) adalah unit dasar informasi kuantum yang bisa berada pada keadaan 0, 1, atau keduanya sekaligus."
+            },
+            {
+                question: "Jaringan perangkat fisik seperti lampu pintar dan thermostat yang saling terhubung ke internet dinamakan...",
+                options: ["Internet of Things (IoT)", "Cloud Mesh", "Smart Grid System", "Cyber-Physical Link"],
+                answer: 0,
+                explanation: "IoT (Internet of Things) adalah konsep terhubungnya objek fisik ke internet untuk pertukaran data secara cerdas."
+            },
+            {
+                question: "Model AI yang dilatih khusus untuk membuat konten baru seperti gambar, musik, teks, atau kode disebut...",
+                options: ["Generative AI", "Predictive AI", "Reactive AI", "Analytical AI"],
+                answer: 0,
+                explanation: "Generative AI berfokus menciptakan karya atau konten sintetis baru berbasis pola dari data yang dipelajarinya."
+            },
+            {
+                question: "Sensor berbasis sinar laser yang digunakan mobil otonom (tanpa pengemudi) untuk mengukur jarak sekitar adalah...",
+                options: ["LiDAR", "Radar Sonar", "Infrared Grid", "GPS Tracker"],
+                answer: 0,
+                explanation: "LiDAR (Light Detection and Ranging) memancarkan laser untuk membuat peta 3D lingkungan sekitar kendaraan secara real-time."
+            },
+            {
+                question: "Metode latihan AI di mana model diberi masukan data beserta kunci jawaban (label) yang benar dinamakan...",
+                options: ["Supervised Learning", "Unsupervised Learning", "Reinforcement Learning", "Zero-Shot Learning"],
+                answer: 0,
+                explanation: "Supervised Learning (Pembelajaran Terawasi) menggunakan kumpulan data terlabel agar AI belajar mengenali pola yang tepat."
+            },
+            {
+                question: "Sistem keamanan biometrik modern yang memanfaatkan AI untuk memverifikasi struktur wajah penggunanya dinamakan...",
+                options: ["Facial Recognition", "Fingerprint Matching", "Voice Synthesizer", "Retina Projection"],
+                answer: 0,
+                explanation: "Facial Recognition memanfaatkan algoritma AI vision untuk mengidentifikasi dan memverifikasi identitas seseorang melalui fitur wajah."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let userAnswers = []; 
+        let isAnswered = false;
+        let shuffledQuestions = [];
+
+        function prepareQuestions() {
+            shuffledQuestions = quizData.map((q, idx) => {
+                const optionsWithOrig = q.options.map((opt, i) => ({
+                    text: opt,
+                    isCorrect: i === q.answer
+                }));
+                
+                for (let i = optionsWithOrig.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [optionsWithOrig[i], optionsWithOrig[j]] = [optionsWithOrig[j], optionsWithOrig[i]];
+                }
+
+                return {
+                    question: q.question,
+                    options: optionsWithOrig,
+                    explanation: q.explanation,
+                    originalIndex: idx
+                };
+            });
+        }
+
+        const appEl = document.getElementById('app');
+
+        function renderWelcome() {
+            appEl.innerHTML = `
+                <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                    <!-- Kiri: Animasi & Icon -->
+                    <div class="w-full md:w-1/3 flex justify-center">
+                        <div class="w-32 h-32 md:w-48 md:h-48 bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 rounded-[2.5rem] flex items-center justify-center shadow-2xl transform -rotate-6 transition-transform hover:rotate-0 duration-500">
+                            <i data-lucide="bot" class="w-16 h-16 md:w-24 md:h-24 text-white animate-bounce-short"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Kanan: Teks & Tombol -->
+                    <div class="w-full md:w-2/3 text-center md:text-left">
+                        <h2 class="text-3xl md:text-4xl font-black text-slate-800 mb-4">Siap Uji Wawasanmu?</h2>
+                        <p class="text-slate-600 text-base md:text-lg mb-8 leading-relaxed">
+                            Buktikan seberapa jauh kamu mengenal dunia Kecerdasan Buatan, inovasi digital, dan teknologi masa depan yang mengubah dunia saat ini!
+                        </p>
+
+                        <div class="grid grid-cols-3 gap-3 md:gap-6 mb-8 text-center">
+                            <div class="bg-purple-100 p-4 rounded-2xl md:rounded-3xl border border-purple-200">
+                                <span class="block text-purple-700 font-extrabold text-2xl md:text-3xl">15</span>
+                                <span class="text-xs md:text-sm text-purple-600 font-bold uppercase mt-1">Soal Kuis</span>
+                            </div>
+                            <div class="bg-pink-100 p-4 rounded-2xl md:rounded-3xl border border-pink-200">
+                                <span class="block text-pink-700 font-extrabold text-2xl md:text-3xl">Fun</span>
+                                <span class="text-xs md:text-sm text-pink-600 font-bold uppercase mt-1">Tampilan</span>
+                            </div>
+                            <div class="bg-indigo-100 p-4 rounded-2xl md:rounded-3xl border border-indigo-200">
+                                <span class="block text-indigo-700 font-extrabold text-2xl md:text-3xl">SFX</span>
+                                <span class="text-xs md:text-sm text-indigo-600 font-bold uppercase mt-1">Audio</span>
+                            </div>
+                        </div>
+
+                        <button id="start-btn" class="w-full md:w-auto btn-gradient text-white font-extrabold py-4 px-10 rounded-2xl md:rounded-3xl shadow-xl flex items-center justify-center gap-3 text-lg md:text-xl tracking-wide mx-auto md:mx-0">
+                            <span>MULAI SEKARANG</span>
+                            <i data-lucide="rocket" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+
+            document.getElementById('start-btn').addEventListener('click', () => {
+                AudioFX.playClick();
+                prepareQuestions();
+                currentQuestion = 0;
+                score = 0;
+                userAnswers = [];
+                renderQuiz();
+            });
+        }
+
+        function renderQuiz() {
+            isAnswered = false;
+            const q = shuffledQuestions[currentQuestion];
+            const progress = ((currentQuestion + 1) / shuffledQuestions.length) * 100;
+
+            appEl.innerHTML = `
+                <!-- Progress Header -->
+                <div class="mb-6 md:mb-8">
+                    <div class="flex justify-between items-center text-sm md:text-base font-bold text-slate-500 mb-3">
+                        <span class="flex items-center gap-2 text-purple-600 bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-100">
+                            <i data-lucide="help-circle" class="w-5 h-5"></i>
+                            Pertanyaan ${currentQuestion + 1} / 15
+                        </span>
+                        <span class="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-3 py-1.5 rounded-lg shadow-sm">
+                            ${Math.round(progress)}% Selesai
+                        </span>
+                    </div>
+                    <div class="w-full h-4 md:h-5 bg-slate-100 rounded-full overflow-hidden p-1 border border-slate-200 shadow-inner">
+                        <div class="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 rounded-full transition-all duration-700 ease-out relative" style="width: ${progress}%">
+                            <div class="absolute inset-0 bg-white/20 w-full h-full animate-[pulse_2s_ease-in-out_infinite]"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pertanyaan -->
+                <div class="mb-8 md:mb-10 text-center md:text-left">
+                    <h3 class="text-xl md:text-3xl font-extrabold text-slate-800 leading-tight">
+                        ${q.question}
+                    </h3>
+                </div>
+
+                <!-- Grid Pilihan Jawaban (Menjadi 2 Kolom di Layar Lebar) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 mb-8" id="options-container">
+                    ${q.options.map((opt, idx) => `
+                        <button data-index="${idx}" class="option-btn h-full w-full option-card bg-slate-50 hover:bg-purple-50 border-2 border-slate-200 hover:border-purple-300 p-4 md:p-6 rounded-2xl font-bold text-slate-700 text-left flex items-center justify-between group shadow-sm">
+                            <span class="text-base md:text-lg pr-4">${opt.text}</span>
+                            <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white border-2 border-slate-300 flex items-center justify-center shrink-0 group-hover:border-purple-500 group-hover:bg-purple-100 transition-colors">
+                                <span class="text-sm md:text-base text-slate-400 group-hover:text-purple-600 font-black">${String.fromCharCode(65 + idx)}</span>
+                            </div>
+                        </button>
+                    `).join('')}
+                </div>
+
+                <!-- Box Penjelasan -->
+                <div id="explanation-box" class="hidden mb-8 p-5 md:p-6 rounded-2xl md:rounded-3xl bg-amber-50 border-2 border-amber-200 text-sm md:text-base text-amber-900 leading-relaxed shadow-inner">
+                    <div class="font-black mb-2 flex items-center gap-2 text-amber-700 text-base md:text-lg">
+                        <i data-lucide="lightbulb" class="w-5 h-5 md:w-6 md:h-6"></i> Fakta Menarik:
+                    </div>
+                    <span id="explanation-text" class="block font-medium">${q.explanation}</span>
+                </div>
+
+                <!-- Tombol Lanjut -->
+                <div class="flex justify-end">
+                    <button id="next-btn" class="hidden w-full md:w-auto btn-gradient text-white font-extrabold py-4 px-8 rounded-2xl md:rounded-3xl shadow-lg flex items-center justify-center gap-3 text-lg transition-all">
+                        <span>${currentQuestion < shuffledQuestions.length - 1 ? 'LANJUT SOAL BERIKUTNYA' : 'LIHAT HASIL AKHIR'}</span>
+                        <i data-lucide="${currentQuestion < shuffledQuestions.length - 1 ? 'arrow-right' : 'flag'}" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            `;
+            lucide.createIcons();
+
+            const optionBtns = document.querySelectorAll('.option-btn');
+            optionBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    if (isAnswered) return;
+                    isAnswered = true;
+
+                    const selectedIdx = parseInt(btn.getAttribute('data-index'));
+                    const isCorrect = q.options[selectedIdx].isCorrect;
+
+                    userAnswers.push({
+                        question: q.question,
+                        selectedText: q.options[selectedIdx].text,
+                        correctText: q.options.find(o => o.isCorrect).text,
+                        isCorrect: isCorrect,
+                        explanation: q.explanation
+                    });
+
+                    // Styling UI based on correct/incorrect
+                    optionBtns.forEach((b, i) => {
+                        b.disabled = true;
+                        b.classList.remove('hover:bg-purple-50', 'hover:border-purple-300');
+                        b.classList.add('cursor-not-allowed');
+                        
+                        if (q.options[i].isCorrect) {
+                            b.classList.remove('bg-slate-50', 'border-slate-200');
+                            b.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900', 'shadow-md');
+                            b.querySelector('div').className = 'w-8 h-8 md:w-10 md:h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 font-bold text-base shadow-sm';
+                            b.querySelector('div').innerHTML = '<i data-lucide="check" class="w-5 h-5"></i>';
+                        } else if (i === selectedIdx && !isCorrect) {
+                            b.classList.remove('bg-slate-50', 'border-slate-200');
+                            b.classList.add('bg-rose-100', 'border-rose-400', 'text-rose-900', 'shadow-md');
+                            b.querySelector('div').className = 'w-8 h-8 md:w-10 md:h-10 rounded-full bg-rose-500 text-white flex items-center justify-center shrink-0 font-bold text-base shadow-sm';
+                            b.querySelector('div').innerHTML = '<i data-lucide="x" class="w-5 h-5"></i>';
+                        } else {
+                            b.classList.add('opacity-40', 'scale-95');
+                        }
+                    });
+
+                    lucide.createIcons(); // Re-render check/x icons
+
+                    if (isCorrect) {
+                        score++;
+                        AudioFX.playCorrect();
+                    } else {
+                        AudioFX.playWrong();
+                    }
+
+                    document.getElementById('explanation-box').classList.remove('hidden');
+                    document.getElementById('explanation-box').classList.add('animate-[fadeIn_0.5s_ease-out]');
+                    
+                    const nextBtn = document.getElementById('next-btn');
+                    nextBtn.classList.remove('hidden');
+                    nextBtn.classList.add('animate-[bounce-short_1s_ease-in-out_infinite]');
+                    
+                    setTimeout(() => {
+                        nextBtn.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    }, 100);
+                });
+            });
+
+            document.getElementById('next-btn').addEventListener('click', () => {
+                AudioFX.playClick();
+                if (currentQuestion < shuffledQuestions.length - 1) {
+                    currentQuestion++;
+                    renderQuiz();
+                } else {
+                    renderResult();
+                }
+            });
+        }
+
+        function renderResult() {
+            const percentage = Math.round((score / shuffledQuestions.length) * 100);
+            
+            if (percentage >= 60) {
+                const duration = 3000;
+                const end = Date.now() + duration;
+                (function frame() {
+                    confetti({
+                        particleCount: 5,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        colors: ['#ec4899', '#8b5cf6', '#3b82f6']
+                    });
+                    confetti({
+                        particleCount: 5,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        colors: ['#ec4899', '#8b5cf6', '#3b82f6']
+                    });
+                    if (Date.now() < end) requestAnimationFrame(frame);
+                }());
+            }
+
+            let badgeTitle = "";
+            let badgeClass = "";
+            let iconStr = "";
+            if (percentage === 100) {
+                badgeTitle = "God Tier: AI Mastermind";
+                badgeClass = "bg-amber-100 text-amber-800 border-amber-300";
+                iconStr = "crown";
+            } else if (percentage >= 75) {
+                badgeTitle = "Pro: Tech Expert";
+                badgeClass = "bg-purple-100 text-purple-800 border-purple-300";
+                iconStr = "zap";
+            } else if (percentage >= 50) {
+                badgeTitle = "Solid: Tech Explorer";
+                badgeClass = "bg-blue-100 text-blue-800 border-blue-300";
+                iconStr = "compass";
+            } else {
+                badgeTitle = "Newbie: Beginner Learner";
+                badgeClass = "bg-slate-100 text-slate-800 border-slate-300";
+                iconStr = "sprout";
+            }
+
+            appEl.innerHTML = `
+                <div class="text-center py-6 md:py-10">
+                    <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full border-2 text-sm md:text-base font-black uppercase mb-6 ${badgeClass} shadow-sm">
+                        <i data-lucide="${iconStr}" class="w-5 h-5"></i>
+                        ${badgeTitle}
+                    </div>
+
+                    <h2 class="text-3xl md:text-5xl font-black text-slate-800 mb-2">Hasil Akhir Petualanganmu!</h2>
+                    <p class="text-sm md:text-lg text-slate-500 mb-8 font-medium">Berikut adalah rangkuman seberapa hebat pengetahuan teknologimu.</p>
+
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 mb-10">
+                        <!-- Score Circle -->
+                        <div class="w-48 h-48 md:w-56 md:h-56 rounded-full bg-gradient-to-tr from-pink-500 via-purple-600 to-indigo-600 p-2 shadow-2xl relative">
+                            <div class="absolute inset-0 bg-white/20 rounded-full animate-ping opacity-75"></div>
+                            <div class="w-full h-full bg-white rounded-full flex flex-col items-center justify-center relative z-10">
+                                <span class="text-6xl md:text-7xl font-black text-slate-800 drop-shadow-md">${score}</span>
+                                <div class="h-1 w-12 bg-slate-200 my-2 rounded"></div>
+                                <span class="text-sm md:text-base font-black text-slate-400 uppercase tracking-widest">DARI 15 SOAL</span>
+                            </div>
+                        </div>
+
+                        <!-- Stats Box -->
+                        <div class="bg-slate-50 p-6 md:p-8 rounded-3xl border-2 border-slate-100 w-full md:w-auto min-w-[250px] shadow-sm">
+                            <span class="text-5xl md:text-6xl font-extrabold gradient-text block mb-2">${percentage}%</span>
+                            <span class="block text-sm md:text-base font-bold text-slate-500 uppercase tracking-wide">Tingkat Akurasi</span>
+                            
+                            <div class="mt-6 space-y-3">
+                                <div class="flex justify-between items-center text-sm md:text-base font-bold">
+                                    <span class="text-emerald-600 flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Benar</span>
+                                    <span class="text-slate-800 bg-white px-3 py-1 rounded-lg border">${score}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm md:text-base font-bold">
+                                    <span class="text-rose-600 flex items-center gap-2"><i data-lucide="x-circle" class="w-4 h-4"></i> Salah</span>
+                                    <span class="text-slate-800 bg-white px-3 py-1 rounded-lg border">${15 - score}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row justify-center gap-4 w-full md:w-2/3 mx-auto">
+                        <button id="review-btn" class="w-full bg-white border-2 border-slate-200 hover:border-purple-400 hover:bg-purple-50 text-slate-700 font-extrabold py-4 px-6 rounded-2xl flex items-center justify-center gap-2 text-base transition-all shadow-sm">
+                            <i data-lucide="book-open-check" class="w-6 h-6 text-purple-600"></i>
+                            <span>LIHAT PEMBAHASAN</span>
+                        </button>
+
+                        <button id="restart-btn" class="w-full btn-gradient text-white font-extrabold py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-2 text-base transition-all">
+                            <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
+                            <span>MAIN LAGI YUK!</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+
+            document.getElementById('restart-btn').addEventListener('click', () => {
+                AudioFX.playClick();
+                prepareQuestions();
+                currentQuestion = 0;
+                score = 0;
+                userAnswers = [];
+                renderQuiz();
+            });
+
+            document.getElementById('review-btn').addEventListener('click', () => {
+                AudioFX.playClick();
+                renderReview();
+            });
+        }
+
+        function renderReview() {
+            appEl.innerHTML = `
+                <!-- Review Header -->
+                <div class="mb-6 md:mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b-2 border-slate-100 pb-6">
+                    <div>
+                        <h3 class="text-2xl md:text-3xl font-black text-slate-800 flex items-center gap-3">
+                            <div class="p-2 bg-purple-100 rounded-xl text-purple-600"><i data-lucide="book-open" class="w-6 h-6 md:w-8 md:h-8"></i></div>
+                            Kunci & Pembahasan
+                        </h3>
+                        <p class="text-slate-500 font-medium text-sm md:text-base mt-2">Pelajari materi dari soal-soal yang sudah kamu kerjakan.</p>
+                    </div>
+                    
+                    <button id="back-to-result-btn" class="btn-gradient text-white font-extrabold py-3 px-6 rounded-xl shadow-md flex items-center gap-2 text-sm md:text-base whitespace-nowrap">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        KEMBALI
+                    </button>
+                </div>
+
+                <!-- Review Items Grid (2 columns on medium+ screens) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-h-[65vh] overflow-y-auto pr-2 md:pr-4 mb-4 pb-4">
+                    ${userAnswers.map((ans, idx) => `
+                        <div class="p-5 md:p-6 rounded-3xl border-2 ${ans.isCorrect ? 'bg-emerald-50/50 border-emerald-200' : 'bg-rose-50/50 border-rose-200'} shadow-sm h-full flex flex-col">
+                            
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="font-black text-sm md:text-base bg-white px-3 py-1 rounded-lg border ${ans.isCorrect ? 'text-emerald-700 border-emerald-200' : 'text-rose-700 border-rose-200'}">
+                                    Soal No. ${idx + 1}
+                                </span>
+                                <span class="font-bold flex items-center gap-1 text-sm md:text-base ${ans.isCorrect ? 'text-emerald-600' : 'text-rose-600'}">
+                                    <i data-lucide="${ans.isCorrect ? 'check-circle-2' : 'x-circle'}" class="w-5 h-5"></i>
+                                    ${ans.isCorrect ? 'BENAR' : 'SALAH'}
+                                </span>
+                            </div>
+                            
+                            <p class="font-extrabold text-base md:text-lg text-slate-800 mb-4 leading-snug">${ans.question}</p>
+                            
+                            <div class="text-sm md:text-base space-y-2 mb-5 flex-grow">
+                                ${!ans.isCorrect ? `
+                                <div class="bg-rose-100/50 p-3 rounded-xl border border-rose-200">
+                                    <p class="text-rose-800 font-medium"><strong class="font-black">Jawabanmu:</strong> <br/> ${ans.selectedText}</p>
+                                </div>` : ''}
+                                
+                                <div class="bg-emerald-100/50 p-3 rounded-xl border border-emerald-200">
+                                    <p class="text-emerald-800 font-medium"><strong class="font-black">Kunci Jawaban:</strong> <br/> ${ans.correctText}</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-2xl border-2 border-amber-100 text-sm md:text-base text-slate-600 leading-relaxed shadow-inner">
+                                <span class="font-black text-amber-600 flex items-center gap-2 mb-2">
+                                    <i data-lucide="lightbulb" class="w-4 h-4"></i> Fakta Menarik:
+                                </span>
+                                <span class="font-medium">${ans.explanation}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            lucide.createIcons();
+
+            document.getElementById('back-to-result-btn').addEventListener('click', () => {
+                AudioFX.playClick();
+                renderResult();
+            });
+        }
+
+        // Initialize App
+        renderWelcome();
+    </script>
+</body>
+</html>
+```
